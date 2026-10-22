@@ -1,0 +1,89 @@
+name: OSS regression
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Build reviewable export when in private preparation repo
+        run: |
+          if [ -f tools/export_public_source.py ]; then
+            python tools/export_public_source.py --output "$RUNNER_TEMP/autograde-oss"
+            echo "OSS_ROOT=$RUNNER_TEMP/autograde-oss" >> "$GITHUB_ENV"
+          else
+            echo "OSS_ROOT=$GITHUB_WORKSPACE" >> "$GITHUB_ENV"
+          fi
+      - name: Install requirements
+        run: python -m pip install -r "$OSS_ROOT/requirements.txt"
+      - name: Python regression
+        run: cd "$OSS_ROOT" && python -m unittest discover -s tests -v
+      - name: Frontend logic regression
+        run: |
+          cd "$OSS_ROOT"
+          for f in tests/test_*.js; do node "$f"; done
+      - name: Verify optimized frontend JavaScript syntax
+        run: |
+          cd "$OSS_ROOT"
+          for source in static/*.js; do node --check "$source"; done
+      - name: Install Chromium test tooling
+        run: |
+          cd "$OSS_ROOT"
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run real-browser synthetic UI smoke tests
+        run: |
+          cd "$OSS_ROOT"
+          for test in tests/browser/*-smoke.js; do node "$test"; done
+      - name: Smoke test synthetic offline preview
+        run: |
+          cd "$OSS_ROOT"
+          python tests/preview_server.py > "$RUNNER_TEMP/preview.log" 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" 2>/dev/null || true' EXIT
+          curl --retry 15 --retry-connrefused --retry-delay 1 -fsS http://127.0.0.1:8765/ -o "$RUNNER_TEMP/preview.html"
+          test -s "$RUNNER_TEMP/preview.html"
+      - name: Ensure no private fixtures in exported source
+        run: |
+          cd "$OSS_ROOT"
+          test ! -d test_photos
+          test ! -f tools/export_public_source.py
+          ! grep -R -n -E 'autograde[.]site|湘ICP备[0-9]+号' --include='*.py' --include='*.md' --include='*.html' .
+      - name: Save synthetic UI test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: autograde-oss-ui-screenshots
+          path: ${{ env.OSS_ROOT }}/test-results/browser/*.png
+          retention-days: 7
+          if-no-files-found: ignore
+      - name: Export fresh pristine package after tests
+        if: ${{ hashFiles('tools/export_public_source.py') != '' }}
+        run: |
+          python tools/export_public_source.py --output "$RUNNER_TEMP/autograde-oss-clean"
+          echo "DIST_ROOT=$RUNNER_TEMP/autograde-oss-clean" >> "$GITHUB_ENV"
+      - name: Verify clean source contains no runtime secrets or history
+        if: ${{ hashFiles('tools/export_public_source.py') != '' }}
+        run: |
+          test ! -d "$DIST_ROOT/.git"
+          test ! -f "$DIST_ROOT/.env"
+          test ! -d "$DIST_ROOT/test_photos"
+          test ! -d "$DIST_ROOT/__pycache__"
+          test -f "$DIST_ROOT/README.md"
+          test -f "$DIST_ROOT/LICENSE"
+      - name: Upload reviewed source snapshot
+        if: ${{ hashFiles('tools/export_public_source.py') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: autograde-oss-review
+          path: ${{ env.DIST_ROOT }}/
+          include-hidden-files: true
+          retention-days: 14
+          if-no-files-found: error

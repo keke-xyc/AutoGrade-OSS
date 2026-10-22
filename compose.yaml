@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+      COOKIE_SECURE: "true"
+      # The app is exposed only to Caddy on this Compose network.
+      FORWARDED_ALLOW_IPS: "*"
+    volumes:
+      - homework_data:/app/data
+    expose:
+      - "8000"
+  web:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      - app
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in .env}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  homework_data:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,17 @@
+# Before DNS/ICP is ready, access only through an SSH tunnel.
+# Uses the same project name/data volume as the production compose.yaml.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATA_DIR: /app/data
+      COOKIE_SECURE: "false"
+      PUBLIC_ORIGIN: ""
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - homework_data:/app/data
+volumes:
+  homework_data:

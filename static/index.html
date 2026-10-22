@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f5f6f2">
+  <meta name="description" content="小学数学作业批改与家长回复工作台">
+  <title>作业小笺 · 老师工作台</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <script src="/static/theme.js"></script>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/workspace.css">
+  <script src="/static/vendor/katex/katex.min.js" defer></script>
+  <script src="/static/math-preview.js" defer></script>
+  <script src="/static/vendor/mathlive/mathlive.min.js" defer></script>
+  <script src="/static/math-input.js" defer></script>
+  <script src="/static/password-visibility.js" defer></script>
+  <script src="/static/review-priority.js" defer></script>
+  <script src="/static/workspace-ui.js" defer></script>
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <svg class="theme-symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="theme-system" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></symbol>
+    <symbol id="theme-light" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></symbol>
+    <symbol id="theme-dark" viewBox="0 0 24 24"><path d="M20.5 13.2A8.5 8.5 0 0 1 10.8 3.5a8.5 8.5 0 1 0 9.7 9.7Z"/></symbol>
+    <symbol id="theme-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+  </svg>
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="brand-mark">笺</div>
+      <p class="eyebrow">老师的日常教学助手</p>
+      <h1>作业小笺</h1>
+      <p class="muted">批改有依据，反馈有温度。</p>
+      <details class="theme-control" data-theme-control>
+        <summary aria-label="外观主题：跟随系统" title="外观主题：跟随系统"><svg class="theme-icon" aria-hidden="true"><use data-theme-icon href="#theme-system"></use></svg></summary>
+        <div class="theme-menu" role="group" aria-label="外观主题">
+          <button type="button" data-theme-choice="system" aria-pressed="true"><svg class="theme-icon" aria-hidden="true"><use href="#theme-system"></use></svg><span>跟随系统</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+          <button type="button" data-theme-choice="light" aria-pressed="false"><svg class="theme-icon" aria-hidden="true"><use href="#theme-light"></use></svg><span>浅色</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false"><svg class="theme-icon" aria-hidden="true"><use href="#theme-dark"></use></svg><span>深色</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+        </div>
+      </details>
+      <form id="login-form">
+        <label for="username">账号</label>
+        <input id="username" autocomplete="username" maxlength="32" required placeholder="输入管理员分配的账号" autocapitalize="none" spellcheck="false">
+        <label for="password">密码</label>
+        <input id="password" type="password" autocomplete="current-password" required placeholder="输入你的工作台密码">
+        <button class="button primary" type="submit">进入工作台 <span>→</span></button>
+      </form>
+      <p id="login-error" class="error-text" role="alert"></p>
+      <p class="fine">账号由管理员创建。忘记密码时，请联系管理员重置。</p>
+      <noscript>请启用浏览器 JavaScript 后使用工作台。</noscript>
+    </div>
+    <footer class="fine"></footer>
+  </div>
+  <div id="workspace" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="#queue"><span class="brand-mark">笺</span><span>作业小笺<small>教师工作台</small></span></a>
+      <p class="nav-label">日常工作</p>
+      <nav class="desktop-nav" aria-label="主导航">
+        <a href="#queue" data-nav="queue"><span>▦</span> 作业待办 <i id="nav-count">0</i></a>
+        <a href="#upload" data-nav="upload"><span>＋</span> 导入作业</a>
+        <a href="#students" data-nav="students"><span>◉</span> 学生档案</a>
+        <a href="#account" data-nav="account"><span>⚙</span> 账号设置</a>
+      </nav>
+      <div class="sidebar-note"><span class="small-leaf">✦</span><strong>让每次反馈都有依据</strong><p>AI准备初稿，你来确认。<br>把更多时间留给孩子。</p></div>
+      <div class="sidebar-bottom"><span class="avatar">师</span><div><strong id="account-name">我的工作台</strong><small id="account-role">老师</small></div><button id="logout" class="icon-button" aria-label="退出登录">↪</button></div>
+    </aside>
+    <main>
+      <header class="topbar"><a class="mobile-brand" href="#queue">▧ 作业小笺</a><span class="topbar-label">每日作业 / 老师工作台</span><span id="today" class="muted"></span><details class="theme-control" data-theme-control>
+        <summary aria-label="外观主题：跟随系统" title="外观主题：跟随系统"><svg class="theme-icon" aria-hidden="true"><use data-theme-icon href="#theme-system"></use></svg></summary>
+        <div class="theme-menu" role="group" aria-label="外观主题">
+          <button type="button" data-theme-choice="system" aria-pressed="true"><svg class="theme-icon" aria-hidden="true"><use href="#theme-system"></use></svg><span>跟随系统</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+          <button type="button" data-theme-choice="light" aria-pressed="false"><svg class="theme-icon" aria-hidden="true"><use href="#theme-light"></use></svg><span>浅色</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+          <button type="button" data-theme-choice="dark" aria-pressed="false"><svg class="theme-icon" aria-hidden="true"><use href="#theme-dark"></use></svg><span>深色</span><svg class="theme-check" aria-hidden="true"><use href="#theme-check"></use></svg></button>
+        </div>
+      </details><button id="mobile-logout" type="button" class="text-button mobile-logout">退出</button></header>
+      <div id="api-banner" class="notice" hidden>尚未连接 DeepSeek。请在电脑的 .env 填写密钥并重启服务；学生档案可以先使用。</div>
+      <section id="queue-view" class="view">
+        <div class="page-heading queue-heading"><div><p class="eyebrow">每日教学 · 作业工作台</p><h1>作业待办</h1><p class="muted">先完成需要你确认的作业，其余交给系统准备。</p></div><a class="button primary queue-create" href="#upload">＋ 导入作业</a></div>
+        <div class="stats"><div><span>需处理</span><strong id="stat-review">0</strong><small>待复核或处理失败</small></div><div><span>处理中</span><strong id="stat-processing">0</strong><small>上传成功后，可切回微信</small></div><div><span>今日已归档</span><strong id="stat-confirmed">0</strong><small>作业日期为今天</small></div></div>
+        <details class="stats-explanation"><summary>统计说明</summary><p class="fine">“今日”按作业日期计算；统计涵盖全部作业，不随下面的筛选变化。</p></details>
+        <div class="section-heading queue-section-heading"><h2>作业清单 <span id="list-count" class="count-pill">0</span></h2><button id="refresh" class="text-button" type="button" aria-label="刷新作业清单">↻ 刷新</button></div>
+        <div class="filter-bar" role="group" aria-label="作业状态筛选"><button class="filter active" data-filter="pending" aria-pressed="true">待处理</button><button class="filter" data-filter="confirmed" aria-pressed="false">已确认</button><button class="filter" data-filter="all" aria-pressed="false">全部作业</button></div>
+        <details id="job-filter-panel" class="job-filter-panel"><summary>更多筛选 <span id="job-filter-status" class="fine" hidden></span></summary><div class="job-filters" role="group" aria-label="学生与作业日期筛选">
+          <div><label for="job-student-filter">学生</label><select id="job-student-filter"><option value="">全部学生</option></select></div>
+          <details class="date-filters"><summary><span id="date-filter-label">日期筛选</span></summary><div class="date-range"><div><label for="job-day-from">开始日期</label><input id="job-day-from" type="date"></div><div><label for="job-day-to">结束日期</label><input id="job-day-to" type="date"></div></div></details>
+        </div></details>
+        <div id="jobs-list" class="job-grid"></div>
+        <nav id="job-pagination" class="job-pagination" aria-label="作业分页" hidden></nav>
+
+      </section>
+      <section id="upload-view" class="view" hidden>
+        <div class="page-heading upload-heading"><div><p class="eyebrow">新建批改任务</p><h1>导入作业</h1><p class="muted">选择学生和作业照片，确认页序后提交。可以一次导入多页。</p></div></div>
+        <form id="upload-form" class="upload-layout">
+          <div class="panel upload-details-panel"><div class="panel-title"><span class="step">01</span><h2>作业信息</h2></div><label for="student-select">学生</label><div class="input-row"><select id="student-select" required><option value="">请选择学生</option></select><button type="button" class="button secondary" id="add-student">＋ 新建</button></div><div class="field"><label for="assignment-day">作业日期</label><input type="date" id="assignment-day" required></div><details class="reference"><summary>添加参考答案（选填）</summary><textarea aria-label="参考答案与评分要求（选填）" id="reference" rows="5" maxlength="6000" placeholder="统一作业可以补充参考答案、评分要求。"></textarea></details><details class="upload-help"><summary>拍摄与上传建议</summary><p>每次只提交一个孩子的一份作业。照片尽量包含完整题干和实际作答，并按练习册顺序排列。</p></details></div>
+          <div class="panel upload-photos-panel"><div class="panel-title"><span class="step">02</span><h2>作业照片</h2></div><label class="dropzone" id="dropzone" for="photo-input"><span class="upload-symbol">＋</span><strong>添加作业照片</strong><span>支持多选 · JPG / PNG / WebP / HEIC / HEIF</span><small>每张20MB、2500万像素以内，最多10张</small></label><input id="photo-input" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.mpo,.heic,.heif,image/heic,image/heif,image/heic-sequence,image/heif-sequence" multiple class="visually-hidden"><div id="photo-list" class="photo-grid"></div><p id="photo-count" class="fine">尚未选择照片</p><details class="upload-help"><summary>图片预览与支持格式说明</summary><p class="fine">HEIC / HEIF 选择后会上传到本服务生成预览，不调用 AI；正式提交批改时才产生 API 费用。</p></details><details class="original-upload" id="original-section"><summary>＋ 上传空白原题（选填）</summary><p class="fine">孩子的约分、涂改遮住题目时，可补充相同版本的空白原题。支持图片或 PDF，Word 请先转 PDF。</p><label class="button secondary" for="original-input">选择原题图片或 PDF</label><input id="original-input" type="file" accept="image/*,.jpg,.jpeg,.png,.webp,.mpo,.heic,.heif,image/heic,image/heif,image/heic-sequence,image/heif-sequence,.pdf,application/pdf" multiple class="visually-hidden"><div id="original-list"></div><p class="fine">每个文件20MB以内，PDF 按内部页码展开；原题合计最多10页。选好后，在下方为每张作业指定对应原题页。只会提交指定页，费用计入该作业图。</p></details><div id="material-mapping" hidden></div><div class="upload-footer"><div class="upload-submit-summary" role="status" aria-live="polite"><strong id="upload-submit-title">等待选择照片</strong><span id="upload-submit-detail">先选择学生和作业照片，再提交批改。</span></div><button id="submit-upload" class="button primary" type="submit">提交批改 →</button><p class="fine upload-privacy">提交后照片和指定原题页将发送 DeepSeek 处理，可能包含姓名等信息；建议事先遮挡无关信息。合计最多100MB。</p></div><div id="upload-progress" class="notice" role="status" hidden></div><progress id="upload-meter" max="100" value="0" aria-label="照片上传进度" hidden></progress><p id="upload-lock-notice" class="notice" role="status" hidden></p><div class="upload-status-actions"><button id="upload-cancel" type="button" class="button secondary" hidden>取消上传</button><button id="upload-check" type="button" class="button secondary" hidden>检查提交结果</button><button id="upload-release" type="button" class="text-button error-text" hidden>放弃这次重试，重新编辑</button></div></div>
+        </form>
+      </section>
+      <section id="students-view" class="view" hidden>
+        <div class="page-heading"><div><p class="eyebrow">每个孩子，都有自己的节奏</p><h1>学生档案</h1><p class="muted">仅老师确认过的作业，才会进入评语的历史参考。</p></div><button class="button primary" id="add-student-page">＋ 新建学生</button></div>
+        <div id="students-list" class="job-grid"></div><div id="student-history" hidden></div>
+      </section>
+      <section id="review-view" class="view review-view" hidden></section>
+      <section id="account-view" class="view" hidden>
+        <div class="page-heading"><div><p class="eyebrow">你的独立工作台</p><h1>账号设置</h1><p id="account-identity" class="muted"></p></div></div>
+        <p id="password-required" class="notice" role="status" hidden>首次登录或密码已被重置，请先修改密码，再进入工作台。</p>
+        <div class="account-grid">
+          <form id="password-form" class="panel"><h2>修改密码</h2><label for="old-password">当前密码</label><input id="old-password" type="password" autocomplete="current-password" maxlength="256" required><label for="new-password">新密码</label><input id="new-password" type="password" autocomplete="new-password" minlength="10" maxlength="256" required><label for="confirm-password">再次输入新密码</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="10" maxlength="256" required><p class="fine">至少10个字符。修改后所有设备需重新登录。</p><button class="button primary" type="submit">保存新密码</button><p id="password-error" class="error-text" role="alert"></p></form>
+          <div class="panel"><h2>登录与用量</h2><p>同一个账号可以在电脑和手机上使用。</p><button id="logout-all" type="button" class="button secondary">退出所有设备</button><div id="account-usage" class="account-usage"></div><p class="fine">用量包含已删除作业的调用记录。超时或中断可能产生未记录费用，实际扣款以模型服务商账单为准。</p></div>
+        </div>
+        <div id="admin-panel" hidden>
+          <div class="section-heading"><h2>老师账号管理</h2></div><p class="muted">管理员可管理账号和查看用量；每位老师的学生与作业独立。</p>
+          <form id="create-user-form" class="panel account-create"><div><label for="teacher-username">账号</label><input id="teacher-username" pattern="[a-z0-9][a-z0-9_.\-]{2,31}" minlength="3" maxlength="32" required autocapitalize="none" spellcheck="false" placeholder="3–32位小写字母、数字、点、横线或下划线"></div><div><label for="teacher-name">老师名称</label><input id="teacher-name" maxlength="40" required></div><div><label for="teacher-password">临时密码</label><input id="teacher-password" type="password" autocomplete="new-password" minlength="10" maxlength="256" required></div><button class="button primary" type="submit">创建老师账号</button><p id="create-user-error" class="error-text" role="alert"></p></form>
+          <div id="users-list" class="job-grid"></div>
+        </div>
+      </section>
+      <footer class="page-footer">作业小笺 <span>·</span> 批改有依据，反馈有温度</footer>
+    </main>
+    <nav class="bottom-nav" aria-label="手机主导航"><a href="#queue" data-nav="queue"><span>▦</span>待办</a><a href="#upload" data-nav="upload"><span>＋</span>导入</a><a href="#students" data-nav="students"><span>◉</span>学生</a><a href="#account" data-nav="account"><span>⚙</span>账号</a></nav>
+  </div>
+  <dialog id="student-dialog" aria-labelledby="student-dialog-title"><form id="student-form"><div class="dialog-heading"><h2 id="student-dialog-title">新建学生</h2><button type="button" class="icon-button" data-close="student-dialog" aria-label="关闭">×</button></div><label for="student-name">姓名或昵称</label><input id="student-name" maxlength="40" required placeholder="例如：小宇"><div class="field"><label for="student-grade">年级</label><select id="student-grade"><option>一年级</option><option>二年级</option><option>三年级</option><option>四年级</option><option>五年级</option><option>六年级</option></select></div><button class="button primary full-width" type="submit">保存学生</button></form></dialog>
+  <dialog id="reset-password-dialog" aria-labelledby="reset-password-title"><form id="reset-password-form"><div class="dialog-heading"><h2 id="reset-password-title">重置老师密码</h2><button type="button" class="icon-button" data-close="reset-password-dialog" aria-label="关闭">×</button></div><p id="reset-password-name"></p><label for="reset-password">新临时密码</label><input id="reset-password" type="password" autocomplete="new-password" minlength="10" maxlength="256" required><p class="fine">该老师所有设备会退出，重新登录后必须修改临时密码。</p><p id="reset-password-error" class="error-text" role="alert"></p><button class="button primary" type="submit">重置密码</button></form></dialog>
+  <dialog id="image-dialog" class="image-dialog" aria-labelledby="image-title">
+    <div class="dialog-heading"><h2 id="image-title">查看作业原图</h2><button type="button" class="icon-button" data-close="image-dialog" aria-label="关闭">×</button></div>
+    <div class="image-tools">
+      <button type="button" class="button secondary" id="zoom-out" aria-label="缩小图片">−</button>
+      <button type="button" class="button secondary" id="zoom-in" aria-label="放大图片">＋</button>
+      <button type="button" class="button secondary" id="crop-toggle">框选</button>
+      <details class="image-more"><summary>更多</summary><div class="image-more-menu"><button type="button" class="button secondary" id="page-locate">重新定位本页（1次 API）</button><a class="button secondary" id="download-original" download>下载原文件</a></div></details>
+    </div>
+    <div id="image-reading" hidden><label for="image-question-select">对照题目</label><select id="image-question-select"></select></div>
+    <details id="image-text-details"><summary>对照文字</summary><div class="image-text-body"><p id="image-question-text"></p><p id="crop-help" class="fine">用缩放按钮查看细节。框选时请包含完整题干与作答。</p></div></details>
+    <div id="image-scroll"><div id="image-stage"><img id="full-image" alt="作业照片"><div id="question-regions"></div><canvas id="crop-canvas" hidden></canvas></div></div>
+    <div class="dialog-actions"><button type="button" id="location-submit" class="button secondary" hidden>保存位置（免费）</button><button type="button" id="crop-submit" class="button primary" hidden>重识别（1次 API）</button></div>
+  </dialog>
+  <dialog id="preview-dialog" class="preview-dialog" aria-labelledby="preview-title"><div class="dialog-heading"><h2 id="preview-title">上传照片预览</h2><button type="button" class="icon-button" data-close="preview-dialog" aria-label="关闭">×</button></div><div class="preview-image-scroll"><img id="preview-image" alt="待上传的照片"></div></dialog>
+  <dialog id="question-dialog" aria-labelledby="question-dialog-title"><form id="question-form"><div class="dialog-heading"><h2 id="question-dialog-title">补充遗漏题目</h2><button type="button" class="icon-button" data-close="question-dialog" aria-label="关闭">×</button></div><label for="question-page">所在作业页</label><select id="question-page" required><option value="">请选择作业页</option></select><div class="field"><label for="question-number">题号</label><input id="question-number" maxlength="40" required placeholder="例如：2（4）"></div><p class="fine question-form-help">添加后，在题目卡中填写原题、实际作答和判定。</p><button type="submit" class="button primary full-width">添加题目</button></form></dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

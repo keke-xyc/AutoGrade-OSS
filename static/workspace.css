@@ -1,0 +1,84 @@
+/* Queue and upload page design rules. Kept separate from shared styles. */
+/* Workspace refresh: reduce always-visible controls while keeping data and actions accessible. */
+.queue-heading{margin-bottom:22px}
+.queue-heading h1{font-size:clamp(27px,3vw,36px);letter-spacing:-.025em}
+.queue-create{min-width:150px}
+#queue-view .stats{gap:12px;margin-bottom:8px}
+#queue-view .stats>div{box-shadow:none;border-radius:14px;padding:15px 18px}
+#queue-view .stats strong{font-size:31px;margin:3px 0 1px;line-height:1.3;font-weight:600}
+#queue-view .stats small{font-size:11px;line-height:1.45}
+.stats-explanation{margin:0 0 25px;text-align:right}
+.stats-explanation>summary{display:inline-flex;align-items:center;min-height:36px;cursor:pointer;color:var(--muted);font-size:12px}
+.stats-explanation>.fine{max-width:650px;margin:0 0 0 auto;text-align:right}
+.queue-section-heading{margin-bottom:14px}
+#queue-view .filter-bar{gap:6px;margin-bottom:12px;padding:3px;background:var(--light);border-radius:12px;max-width:max-content}
+#queue-view .filter{min-height:42px;padding:9px 17px;border-radius:9px;font-size:13px;font-weight:600}
+#queue-view .filter.active{background:var(--paper);box-shadow:0 2px 8px #263d3610;border-color:var(--line)}
+.job-filter-panel{margin:0 0 17px}
+.job-filter-panel>summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;min-height:44px;padding:7px 10px;border-radius:8px;color:var(--muted);font-size:13px}
+.job-filter-panel>summary:hover,.job-filter-panel[open]>summary{color:var(--green);background:var(--light)}
+.job-filter-panel>summary .fine{background:var(--light);border-radius:999px;padding:3px 8px}
+.job-filter-panel .job-filters{margin:5px 0 12px;padding:16px;max-width:770px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+.job-card{display:flex;flex-direction:column;gap:12px;padding:19px 20px;box-shadow:none;transition:border-color .18s,box-shadow .18s}
+.job-card:hover{border-color:var(--green);box-shadow:0 5px 18px #263d360c}
+.job-card-head{margin:0}
+.job-identity{flex:1;min-width:0}
+.job-card-head strong{font-size:16px}
+.job-card-head small{font-size:12px}
+.job-card .badge{font-size:11px}
+.job-card-hint{margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+.job-card-footer{margin-top:auto;gap:8px;padding-top:12px;font-size:12px;border-top:1px solid var(--line)}
+.job-card-footer a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;gap:6px;font-size:13px;padding:8px 0}
+.job-card-footer a:focus-visible{outline:3px solid #93bda5;outline-offset:2px;border-radius:7px}
+.upload-heading{margin-bottom:22px}
+.upload-layout{align-items:start;gap:18px}
+.upload-layout>.panel{box-shadow:none;padding:23px}
+.upload-layout .panel-title{margin-bottom:18px}
+.upload-layout .panel-title h2{font-size:17px}
+.upload-help{margin-top:14px;border-top:1px solid var(--line);padding-top:6px}
+.upload-help>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;color:var(--muted);font-size:13px}
+.upload-help p{margin:5px 0 8px;font-size:12px;line-height:1.7;color:var(--muted)}
+.upload-photos-panel .dropzone{min-height:153px;gap:7px;transition:background .15s,border-color .15s}
+.upload-photos-panel .dropzone:hover,.upload-photos-panel .dropzone:focus-within{background:var(--light);border-color:var(--green)}
+.upload-photos-panel .dropzone strong{font-size:15px;font-weight:650;color:var(--green)}
+.upload-photos-panel #photo-count{font-size:13px;margin:10px 0;color:var(--ink)}
+.photo-tile{background:var(--paper)}
+.photo-tile p{font-size:12px;line-height:1.45;white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;min-height:46px}
+.photo-actions>summary{cursor:pointer;display:flex;justify-content:center;align-items:center;min-height:44px;border-top:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:12px;font-weight:600}
+.photo-actions>summary:hover,.photo-actions[open]>summary{color:var(--green);background:var(--light)}
+.photo-actions .photo-controls{border-top:1px solid var(--line)}
+.photo-actions .photo-controls button{font-size:12px;min-height:44px}
+.upload-footer{margin-top:19px;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 16px}
+.upload-submit-summary{display:flex;flex-direction:column;min-width:0;gap:4px}
+.upload-submit-summary strong{font-size:15px;font-weight:650}
+.upload-submit-summary span{color:var(--muted);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.upload-footer .button{justify-self:end;min-height:48px}
+.upload-footer .upload-privacy{grid-column:1/-1;margin:4px 0 0;font-size:12px;line-height:1.65;color:var(--muted)}
+:root[data-theme="dark"] .upload-layout>.panel,:root[data-theme="dark"] .job-card,:root[data-theme="dark"] .photo-actions>summary{background:var(--paper)}
+:root[data-theme="dark"] .job-filter-panel .job-filters{background:var(--paper)}
+:root[data-theme="dark"] .job-card:hover{border-color:var(--green)}
+@media(max-width:900px){
+  .queue-heading{gap:12px;align-items:start}
+  .queue-create{min-width:0}
+  #queue-view .stats{gap:7px}
+  #queue-view .stats>div{padding:12px 9px;border-radius:11px}
+  #queue-view .stats strong{font-size:27px}
+  #queue-view .stats small{font-size:10px}
+  #queue-view .filter-bar{max-width:100%;width:100%}
+  #queue-view .filter{flex:1;padding:9px 5px}
+  .job-filter-panel .job-filters{grid-template-columns:1fr;padding:12px}
+  .job-filter-panel .date-filters{padding-top:0}
+  .job-card{padding:16px;gap:10px}
+  .upload-layout>.panel{padding:18px}
+  .upload-footer{grid-template-columns:1fr}
+  .upload-footer .button{justify-self:stretch;width:100%}
+}
+@media(max-width:480px){
+  .queue-heading h1{font-size:27px}
+  .queue-heading{flex-wrap:wrap}
+  .queue-create{width:100%}
+  #queue-view .stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #queue-view .stats>div>span{font-size:11px}
+  #queue-view .stats small{display:none}
+  .photo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
